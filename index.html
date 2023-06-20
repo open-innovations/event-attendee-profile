@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="utf-8" />
+	<title>Temp files</title>
+	<link rel="StyleSheet" href="style.css" type="text/css"/> 
+	<style>
+	body { font-family: Arial, sans-serif; }
+	pre { background: #dfdfdf; padding: 1em; }
+	code { font-family: fixed; background: #dfdfdf; }
+.drop { 
+	border: 4px dotted red;
+}
+.loaded {
+	border: 4px solid black;
+}
+.dropzone {
+	border: 2px dashed #999999;
+	background: white;
+	border-radius: 0.5em;
+	color: #333333;
+	padding: 2em;
+	text-align: center;
+	position: relative;
+}
+.dropzone input {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+}
+</style>
+</head>
+
+
+
+<body class="b1-bg">
+
+<a class="skip-to-content-link button" href="#main">Skip to main content</a>
+
+<div class="centred padded warning">This site is currently under development and may not be stable.</div>
+<div class="b6-bg">
+	<header>
+		<div class="b1-bg">
+			<div class="holder padded" style="text-align:center;">
+				<a href="https://open-innovations.org/"><svg width="80" height="80" overflow="auto" viewbox="-32 -32 64 64" xmlns="http://www.w3.org/2000/svg"><mask id="oi-person"><path d="m-32-32h64v64h-12v-24a4 4 0 0 0 -4 -4h-8a4 4 0 0 0 -4 4v24h-36zm44 27m-8 0a8 8 0 1 0 16 0 8 8 0 1 0-16 0" fill="#fff"></path></mask><g id="oi-logo" fill="#FF6700"><circle r="32" mask="url(#oi-person)"></circle></g><title>Open Innovations</title></svg></a>
+				<div class="title">OI Event Profiler</div>
+			</div>
+		</div>
+	</header>
+</div>
+
+<div class="b6-bg" id="main">
+	<div class="padded tallpadded">
+		<div class="holder">
+			<div id="drop_zone" class="dropzone">
+				<div class="helpertext">
+					Drop CSV file here (or click to browse files)<br>
+					<input id="standard_files" class="fileselect" type="file" title="browse" name="files[]" multiple="multiple" accept=".csv, .tsv, .txt, .zip">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+// A function that we will later set up to call when a user is hovering with files over an area of the page.
+function dropOver(evt){
+	evt.stopPropagation();
+	evt.preventDefault();
+	evt.target.classList.add('drop');
+	evt.target.classList.remove('loaded');
+}
+function dragOff(evt){
+    console.log(evt)
+	dropZone.classList.remove('drop');
+}
+
+
+// Setup the dnd listeners.
+var dropZone = document.getElementById('drop_zone');
+dropZone.addEventListener('dragover', dropOver, false);
+dropZone.addEventListener('dragout', dragOff, false);
+
+
+function handleFileSelect(evt){
+
+	dragOff();
+
+	var files;
+
+	if(evt.dataTransfer && evt.dataTransfer.files) files = evt.dataTransfer.files; // FileList object.
+	if(!files && evt.target && evt.target.files) files = evt.target.files;
+
+	// files is a FileList of File objects. List some properties.
+	var output = "";
+	var reader,blob;
+	
+	// Build an array of file readers
+	reader = new Array(files.length);
+
+	for (var i = 0, f; i < files.length; i++) {
+		f = files[i];
+
+		reader[i] = new FileReader();
+
+		// Closure to capture the file information.
+		reader[i].onloadend = function(evt) {
+			if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+				if(stop > f.size - 1){
+					var l = evt.target.result.regexLastIndexOf(/[\n\r]/);
+					result = (l > 0) ? evt.target.result.slice(0,l) : evt.target.result;
+				}else result = evt.target.result;
+
+				var lines = result.match(/[\n\r]+/g);
+				var cols = result.slice(0,result.indexOf("\n")).split(/,(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))/);
+
+				// Do things with the result for this file
+			}
+		};
+		
+		blob = f.slice(0,f.size);
+		reader[i].readAsText(blob);
+	}
+
+	document.getElementById('drop_zone').classList.add('loaded');			
+
+}
+	return this;
+
+document.getElementById('standard_files').addEventListener('change',function(evt){
+	evt.stopPropagation();
+	evt.preventDefault();
+//	return false;
+	return handleFileSelect(evt);
+}, false);
+</script>
+</body>
+</html>
