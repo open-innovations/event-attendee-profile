@@ -16,11 +16,45 @@ dropZone.addEventListener('dragover', dropOver, false);
 dropZone.addEventListener('dragout', dragOff, false);
 
 
+var rules = {};
+var csv;
+
+function parseRules(){
+	// Read contents of textarea
+	
+	var ta = document.getElementById('rules');
+	var txt = ta.innerHTML;
+	
+	console.log(txt);
+	
+	// Update rules
+	
+	
+}
+// Make sure any changes of the rules call parseRules
+document.getElementById('rules').addEventListener('change',parseRules);
+
+// We want to parse the rules before even loading any data
+parseRules();
+
+
+
+function processData(){
+	console.log('processData',csv,selector.value);
+	
+	// Do stuff to check emails
+	// Use the rules object to decide
+	
+	// Write output to page
+	
+	
+}
+
 function handleFileSelect(evt){
 
 	dragOff(evt);
 
-	var files,csv,selector;
+	var files,selector;
 
 	if(evt.dataTransfer && evt.dataTransfer.files) files = evt.dataTransfer.files; // FileList object.
 	if(!files && evt.target && evt.target.files) files = evt.target.files;
@@ -105,15 +139,6 @@ function handleFileSelect(evt){
 
 	document.getElementById('drop_zone').classList.add('loaded');			
 
-	function processData(){
-		console.log('processData',csv,selector.value);
-		
-		// Do stuff to check emails
-		
-		// Write output to page
-		
-		
-	}
 
 	return this;
 }

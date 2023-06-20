@@ -1,0 +1,7 @@
+NHS
+	*.nhs.uk
+Academic
+	*.ac.uk
+Government
+	*.gov.uk
+	*catapult*
