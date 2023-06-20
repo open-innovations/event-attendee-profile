@@ -20,7 +20,7 @@ function handleFileSelect(evt){
 
 	dragOff(evt);
 
-	var files;
+	var files,csv,selector;
 
 	if(evt.dataTransfer && evt.dataTransfer.files) files = evt.dataTransfer.files; // FileList object.
 	if(!files && evt.target && evt.target.files) files = evt.target.files;
@@ -50,9 +50,49 @@ function handleFileSelect(evt){
 
 				// Do things with the result for this file
 				// First we will use our helper function to parse the CSV content
-				var csv = OI.CSV2JSON(result);
+				csv = OI.CSV2JSON(result);
 				
 				console.log(csv);
+
+				// Try to detect an email column
+				var eindex = -1;
+				for(i = 0; i < csv.names.length; i++){
+					if(csv.names[i].match(/email/i)){
+						eindex = i;
+						continue;
+					}
+				}
+				
+
+				// Create a drop down
+				selector = document.createElement('select');
+				for(i = 0; i < csv.names.length; i++){
+					var item = document.createElement('option');
+					item.innerHTML = csv.names[i];
+					if(eindex == i){
+						item.setAttribute('selected','selected');
+					}
+					selector.appendChild(item);
+				}
+
+				// Add selector to the page
+				document.getElementById('drop_zone').after(selector);
+
+				// Add an event to the selector
+				selector.addEventListener('change',function(e){
+
+					processData();
+					
+				});
+				
+				// If we have an email column then do things
+				if(eindex >= 0){
+
+					processData();					
+					
+				}else{
+					console.error('No column named "Email" found.');
+				}
 
 
 			}
@@ -65,8 +105,19 @@ function handleFileSelect(evt){
 
 	document.getElementById('drop_zone').classList.add('loaded');			
 
+	function processData(){
+		console.log('processData',csv,selector.value);
+		
+		// Do stuff to check emails
+		
+		// Write output to page
+		
+		
+	}
+
 	return this;
 }
+
 
 document.getElementById('standard_files').addEventListener('change',function(evt){
 	evt.stopPropagation();
