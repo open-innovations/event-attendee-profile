@@ -4,17 +4,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta charset="utf-8" />
 	<title>Temp files</title>
-	<link rel="StyleSheet" href="style.css" type="text/css"/> 
+	<link rel="StyleSheet" href="style.css" type="text/css"/>
+	<script src="https://open-innovations.org/resources/oi.csv.js"></script>
 	<style>
-	body { font-family: Arial, sans-serif; }
-	pre { background: #dfdfdf; padding: 1em; }
-	code { font-family: fixed; background: #dfdfdf; }
-.drop { 
-	border: 4px dotted red;
-}
-.loaded {
-	border: 4px solid black;
-}
 .dropzone {
 	border: 2px dashed #999999;
 	background: white;
@@ -31,6 +23,12 @@
 	width: 100%;
 	height: 100%;
 	opacity: 0;
+}
+.drop { 
+	border: 4px dotted red;
+}
+.loaded {
+	border: 4px solid black;
 }
 </style>
 </head>
@@ -71,11 +69,10 @@
 function dropOver(evt){
 	evt.stopPropagation();
 	evt.preventDefault();
-	evt.target.classList.add('drop');
+	dropZone.classList.add('drop');
 	evt.target.classList.remove('loaded');
 }
 function dragOff(evt){
-    console.log(evt)
 	dropZone.classList.remove('drop');
 }
 
@@ -88,7 +85,7 @@ dropZone.addEventListener('dragout', dragOff, false);
 
 function handleFileSelect(evt){
 
-	dragOff();
+	dragOff(evt);
 
 	var files;
 
@@ -109,32 +106,38 @@ function handleFileSelect(evt){
 
 		// Closure to capture the file information.
 		reader[i].onloadend = function(evt) {
+			var result,i,lines,cols,data;
+
 			if (evt.target.readyState == FileReader.DONE) { // DONE == 2
 				if(stop > f.size - 1){
 					var l = evt.target.result.regexLastIndexOf(/[\n\r]/);
 					result = (l > 0) ? evt.target.result.slice(0,l) : evt.target.result;
 				}else result = evt.target.result;
 
-				var lines = result.match(/[\n\r]+/g);
-				var cols = result.slice(0,result.indexOf("\n")).split(/,(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))/);
 
 				// Do things with the result for this file
+				// First we will use our helper function to parse the CSV content
+				var csv = OI.CSV2JSON(result);
+				
+				console.log(csv);
+
+
 			}
 		};
 		
 		blob = f.slice(0,f.size);
 		reader[i].readAsText(blob);
+
 	}
 
 	document.getElementById('drop_zone').classList.add('loaded');			
 
-}
 	return this;
+}
 
 document.getElementById('standard_files').addEventListener('change',function(evt){
 	evt.stopPropagation();
 	evt.preventDefault();
-//	return false;
 	return handleFileSelect(evt);
 }, false);
 </script>
